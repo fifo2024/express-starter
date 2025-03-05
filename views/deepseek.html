@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>{{title}}</title>
+    </head>
+    <body>
+        <h1>{{content}}</h1>
+        <div>
+            <textarea
+                id="userInput"
+                placeholder="输入你的消息..."
+                rows="4"
+                cols="50"
+            ></textarea
+            ><br />
+            <button onclick="sendMessage()">发送消息</button>
+        </div>
+        <div id="messages">
+            <!-- 服务器返回的消息将显示在这里 -->
+        </div>
+        <script>
+            function sendMessage() {
+                const responseArea = document.getElementById("messages");
+                const userInput = document.getElementById("userInput").value;
+                let p = document.createElement("p");
+                const div = document.createElement("div");
+                div.classList = "title";
+                div.innerHTML = userInput;
+                responseArea.appendChild(div);
+
+                if (!userInput) return;
+                // 创建一个新的 EventSource 对象
+                const eventSource = new EventSource(
+                    `http://127.0.0.1:4000/chat/completions?message=${userInput}`
+                );
+
+                // 监听 'message' 事件，每当服务器推送一条新消息时触发
+                eventSource.onmessage = function (event) {
+                    try {
+                        const json = JSON.parse(event.data);
+
+                        updateResponseArea(json.content, p);
+                    } catch (e) {
+                        console.error("Error parsing JSON:", e);
+                    }
+                };
+
+                // 监听 'open' 事件，表示连接已成功打开
+                eventSource.onopen = function () {
+                    console.log("Connection to server opened.");
+                };
+
+                // 监听 'error' 事件，处理任何错误或连接中断的情况
+                eventSource.onerror = function (error) {
+                    if (eventSource.readyState === EventSource.CLOSED) {
+                        console.log("Connection was closed by the server.");
+                    } else {
+                        console.error("EventSource failed:", error);
+                    }
+                    eventSource.close(); // 手动关闭连接
+                };
+
+                // 更新页面上的响应区域
+                function updateResponseArea(message, p) {
+                    p.classList = "back";
+                    p.innerHTML += `<span>${message}</span>`;
+                    responseArea.appendChild(p);
+                }
+            }
+        </script>
+    </body>
+</html>

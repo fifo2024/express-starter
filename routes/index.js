@@ -7,15 +7,21 @@ const user = require("../controllers/user.js");
 const puppe = require("../controllers/puppe.js");
 const eventSource = require("../controllers/eventsource.js");
 const stream = require("../controllers/stream.js");
+const ffmpegController = require("../controllers/ffmpeg.js");
+const deepSeekController = require("../controllers/deepseek.js");
 
 module.exports = function (app, wss) {
     app.get("/", index.home);
     app.post("/login", login.index);
-    app.get('/api/users', user.list);
+    app.get("/api/users", user.list);
     app.get("/api/puppe", puppe.puppe);
     app.get("/api/eventsource", eventSource.index);
     app.get("/stream/readFile", stream.readFile);
     app.get("/stream", stream.index);
+    app.get("/ffmpeg", ffmpegController.index);
+    app.get("/deepseek", deepSeekController.index);
+    app.get("/chat/completions", deepSeekController.chat);
+    app.get("/botai", index.botAi);
 
     // 使用restful风格定义api
     // 仅接收 get 请求
@@ -55,26 +61,29 @@ module.exports = function (app, wss) {
     // sse协议
     app.get("/sse", (req, res) => {
         res.set({
-            'Content-Type': 'text/event-stream',
-            'Cache-Control': 'no-cache',
-            'Connection': 'keep-alive'
+            "Content-Type": "text/event-stream",
+            "Cache-Control": "no-cache",
+            Connection: "keep-alive",
         });
-        
+
         res.flushHeaders();
 
         const timer = setInterval(() => {
             const data = {
-                message: `Current time is ${new Date().toLocaleTimeString()}`
+                message: `Current time is ${new Date().toLocaleTimeString()}`,
             };
 
             res.write(`data: ${JSON.stringify(data)}\n\n`);
 
             res.write(
-                "event: customEvent" + "\n" +
-                "data: 消息内容3 - " + Math.random() + "\n\n"
+                "event: customEvent" +
+                    "\n" +
+                    "data: 消息内容3 - " +
+                    Math.random() +
+                    "\n\n"
             );
         }, 3000);
-    })
+    });
 
     // 匹配任何路径
     app.all("*", (req, res) => {});

@@ -11,6 +11,9 @@ var WebSocket,
 var routes = require("./routes");
 //var http = require('http');
 var domain = require("domain");
+var dotenv = require("dotenv");
+
+dotenv.config(); // 这将加载 .env 文件中的环境变量
 
 var app = express();
 
@@ -55,6 +58,9 @@ app.use(
             "/stream",
             "/stream/readFile",
             "/sse",
+            "/deepseek",
+            "/chat/completions",
+            "/botai",
         ], // 指定路径不经过 Token 解析
     })
 );
@@ -90,7 +96,14 @@ app.all("*", function (req, res, next) {
     res.header("Access-Control-Allow-Methods", "*");
     res.header("X-Powered-By", " 3.2.1");
     res.header("Content-Type", "application/json;charset=utf-8");
-    next();
+
+    if ("OPTIONS" == req.method) {
+        // 如果请求方法是 OPTIONS，则直接返回成功响应
+        res.send(200);
+    } else {
+        // 否则继续处理请求
+        next();
+    }
 });
 
 // 匹配任意路径

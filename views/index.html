@@ -3,6 +3,12 @@
     <head>
         <meta charset="UTF-8" />
         <title>{{title}}</title>
+        <style>
+            .seek {
+                margin: 16px;
+                cursor: pointer;
+            }
+        </style>
     </head>
     <body>
         <h3>
@@ -16,6 +22,9 @@
         <button id="eventClose">关闭消息推送</button>
         <div>
             <button id="eventOpen2">开启消息推送 (通道二)</button>
+        </div>
+        <div>
+            <button id="eventOpen3" class="seek">DeepSeek</button>
         </div>
         <div id="events"></div>
         <div>CopyRight@zhifou.co</div>
@@ -55,6 +64,12 @@
 
                         events.innerHTML += `<p>${message}</p>`;
                     };
+                });
+
+            document
+                .getElementById("eventOpen3")
+                .addEventListener("click", () => {
+                    window.location = "/deepseek";
                 });
         </script>
     </body>
